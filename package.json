@@ -1,0 +1,30 @@
+{
+  "name": "nodecoin",
+  "version": "1.0.0",
+  "description": "",
+  "main": "blocks.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.6",
+    "crypto-js": "^4.1.1",
+    "dotenv": "^10.0.0",
+    "elliptic": "^6.5.4",
+    "express": "^4.17.2",
+    "express-session": "^1.17.2",
+    "fs": "^0.0.1-security",
+    "lodash": "^4.17.21",
+    "merkle": "^0.6.0",
+    "morgan": "^1.10.0",
+    "mysql2": "^2.3.3",
+    "passport": "^0.5.2",
+    "path": "^0.12.7",
+    "random": "^3.0.6",
+    "sequelize": "^6.12.5",
+    "sequelize-cli": "^6.3.0"
+  }
+}

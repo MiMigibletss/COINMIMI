@@ -11,6 +11,11 @@ const {getTransactionPool} =require('./transactionPool') ;
 const {getPublicFromWallet, initWallet} =require('./wallet') ;
 const httpPort = parseInt(process.env.HTTP_PORT) || 3001;
 const p2pPort = parseInt(process.env.P2P_PORT) || 6001;
+/**이 서버를 사용하여 다음과 같은 걸 할거에요.
+
+블록의 리스트 가져오기
+새로운 블록을 만들기
+노드 목록을 가져오거나 새로운 노드를 추가하기 curl명령어로도 노드를 제어할 수 있어요. */
 const initHttpServer = (myHttpPort) => {
     const app = express();
     app.use(bodyParser.json());
@@ -106,3 +111,11 @@ const initHttpServer = (myHttpPort) => {
 initHttpServer(httpPort);
 wsInit(p2pPort);
 initWallet();
+
+
+
+
+/**
+ *  curl http://localhost:3001/blocks 
+ * 
+ */

@@ -63,7 +63,7 @@ const validateBlockTransactions = (aTransactions, aUnspentTxOuts, blockIndex) =>
         console.log('invalid coinbase transaction: ' + JSON.stringify(coinbaseTx));
         return false;
     }
-    // check for duplicate txIns. Each txIn can be included only once
+    // 중복 txIn을 확인하십시오. 각 txIn은 한 번만 포함될 수 있습니다.
     const txIns = _(aTransactions)
         .map((tx) => tx.txIns)
         .flatten()
@@ -71,7 +71,7 @@ const validateBlockTransactions = (aTransactions, aUnspentTxOuts, blockIndex) =>
     if (hasDuplicates(txIns)) {
         return false;
     }
-    // all but coinbase transactions
+    // 코인베이스 거래를 제외한 모든 거래
     const normalTransactions = aTransactions.slice(1);
     return normalTransactions.map((tx) => validateTransaction(tx, aUnspentTxOuts))
         .reduce((a, b) => (a && b), true);
@@ -264,7 +264,7 @@ const isValidTransactionStructure = (transaction) => {
     }
     return true;
 };
-// valid address is a valid ecdsa public key in the 04 + X-coordinate + Y-coordinate format
+//유효한 주소는 04 + X 좌표 + Y 좌표 형식의 유효한 ecdsa 공개 키입니다.
 const isValidAddress = (address) => {
     if (address.length !== 130) {
         console.log(address);

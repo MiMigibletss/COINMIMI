@@ -2,6 +2,7 @@ const  CryptoJS =require('crypto-js') ;
 const  ecdsa =require('elliptic') ;
 const  _ =require('lodash') ;
 const ec = new ecdsa.ec('secp256k1');
+//코인베이스 트랜잭션(coinbase transaction)은 오직 아웃풋만 포함해요. 인풋은 없죠. 코인베이스 트랜잭션이 새로운 코인을 돌게 만드는 펌프?같은 역할을 할거에요. 코인베이스 아풋풋의 양을 50코인으로 정하죠.
 const COINBASE_AMOUNT = 50;
 class UnspentTxOut {
     constructor(txOutId, txOutIndex, address, amount) {
@@ -59,6 +60,8 @@ const validateTransaction = (transaction, aUnspentTxOuts) => {
         console.log('some of the txIns are invalid in tx: ' + transaction.id);
         return false;
     }
+
+    //아웃풋의 코인 갯수와 인풋의 코인 갯수도 같아야만 해요. 아웃풋이 50개라면 인풋도 50개.
     const totalTxInValues = transaction.txIns
         .map((txIn) => getTxInAmount(txIn, aUnspentTxOuts))
         .reduce((a, b) => (a + b), 0);
@@ -104,11 +107,17 @@ const hasDuplicates = (txIns) => {
     })
         .includes(true);
 };
+/**코인베이스 트랜잭션은 당연히 노드의 첫 트랜잭션이고 블럭 채굴자 정보를 포함하죠. 블락을 발견한 댓가로 채굴자는 첫 코인베이스 트랜잭션의 아웃풋으로 코인 50개를 받을 거에요.
+
+코인베이스 트랜잭션의 인풋에는 block의 height값을 넣을게요. 이 값이 코인베이스 트랜잭션의 고유한 ID값 역할을 할 거에요. 이 고유값이 없다면 코인 베이스 트랜잭션은 항상 같은 주소에 50코인을 발행하게 되죠.
+
+코인베이스 트랜잭션의 유효성검증은 다른 트랜잭션이랑은 조금 다를 거에요. */
 const validateCoinbaseTx = (transaction, blockIndex) => {
     if (transaction == null) {
         console.log('the first transaction in the block must be coinbase transaction');
         return false;
     }
+    //ID도 확인해야 하고.
     if (getTransactionId(transaction) !== transaction.id) {
         console.log('invalid coinbase tx id: ' + transaction.id);
         return false;
@@ -131,6 +140,7 @@ const validateCoinbaseTx = (transaction, blockIndex) => {
     }
     return true;
 };
+//txIns의 서명도 사용되지 않은 아웃풋을 잘 참조하고 있는지 확인해야 해요.
 const validateTxIn = (txIn, transaction, aUnspentTxOuts) => {
     const referencedUTxOut = aUnspentTxOuts.find((uTxO) => uTxO.txOutId === txIn.txOutId && uTxO.txOutIndex === txIn.txOutIndex);
     if (referencedUTxOut == null) {
@@ -201,16 +211,21 @@ const signTxIn = (transaction, txInIndex, privateKey, aUnspentTxOuts) => {
 트랜잭션 유효성 검증이란 측면에서 uTxO는 중요해요. uTxO는 현재 최신 상태의 블록체인에서 비롯되어야 하기 때문에 우리는 이 업데이트를 구현할 거에요.
 
 uTxO의 데이터 구조는 아래와 같죠. */
+/**새로운 블록이 더해질 때마다 uTxO(Unspent transaction outputs)을 업데이트해야해요. 새로운 트랜잭션은 기존의 트랜잭션 아웃풋 목록에 영향을 주고 새로운 아웃풋을 발생시키기 때문이죠. 이를 위해 새로 생성된 블록으로부터 new unspent transaction outputs을 순회하는 작업이 이루어질 거에요. 코드를 보죠. */
 const updateUnspentTxOuts = (aTransactions, aUnspentTxOuts) => {
     const newUnspentTxOuts = aTransactions
         .map((t) => {
         return t.txOuts.map((txOut, index) => new UnspentTxOut(t.id, index, txOut.address, txOut.amount));
     })
         .reduce((a, b) => a.concat(b), []);
+        //블록에서 이미 소비된 트랜잭션 아웃풋들에 대해서도 알아야 해요. 새 트랜잭션의 인풋을 검사하면 알 수 있어요.
+
+
     const consumedTxOuts = aTransactions
         .map((t) => t.txIns)
         .reduce((a, b) => a.concat(b), [])
         .map((txIn) => new UnspentTxOut(txIn.txOutId, txIn.txOutIndex, '', 0));
+        //이미 소비된 아웃풋을 제거하고 이제 새로은 트랜잭션 아웃풋을 만들수 있게 되었어요.
     const resultingUnspentTxOuts = aUnspentTxOuts
         .filter(((uTxO) => !findUnspentTxOut(uTxO.txOutId, uTxO.txOutIndex, consumedTxOuts)))
         .concat(newUnspentTxOuts);
@@ -273,6 +288,7 @@ const isValidTxOutStructure = (txOut) => {
         return true;
     }
 };
+//트랜잭션은 정의된 방식을 따라야만 해요.
 const isValidTransactionStructure = (transaction) => {
     if (typeof transaction.id !== 'string') {
         console.log('transactionId missing');

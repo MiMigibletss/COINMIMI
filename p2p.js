@@ -1,6 +1,6 @@
 const WebSocket = require('ws')
 const wsPORT = process.env.WS_PORT || 6008
-const bc = require('./blocks')
+const {addBlockToChain, Block, getBlockchain, getLatestBlock, isValidBlockStructure, replaceChain,calculateHash} =require('./blockchain') ;
 //소켓에 주소를 넣을 공간 마련
 let sockets = []
 function getSockets(){ return sockets }
@@ -51,21 +51,21 @@ function queryBlockMsg(){
 function responseLastMsg(){
     return {
         type:MessageAction.RESPONSE_BLOCK,
-        data:JSON.stringify([bc.getLastBlock()]) 
+        data:JSON.stringify([getLatestBlock()]) 
     }
 }
 
 function responseBlockMsg(){
     return {
         type:MessageAction.RESPONSE_BLOCK,
-        data:JSON.stringify(bc.getBlocks())
+        data:JSON.stringify(getBlockchain())
     }
 }
 
 function handleBlockResponse(message){
     const receivedBlocks = JSON.parse(message.data) 
     const lastBlockReceived = receivedBlocks[receivedBlocks.length - 1] 
-    const lastBlockHeld = bc.getLastBlock() 
+    const lastBlockHeld = getLatestBlock() 
 
     if (lastBlockReceived.header.index > lastBlockHeld.header.index) {
         console.log(
@@ -75,9 +75,9 @@ function handleBlockResponse(message){
         )
         
 
-        if (bc.createHash(lastBlockHeld) === lastBlockReceived.header.previousHash) {//받은 블록 중 마지막 블록의 이전해시값이 내 마지막 블록으로 만들어진 암호화값이 같을떄
+        if (calculateHash(lastBlockHeld) === lastBlockReceived.header.previousHash) {//받은 블록 중 마지막 블록의 이전해시값이 내 마지막 블록으로 만들어진 암호화값이 같을떄
             console.log(`마지막 하나만 비어있는경우에는 하나만 추가합니다.`)
-            if (bc.addBlock(lastBlockReceived)) {
+            if (addBlockToChain(lastBlockReceived)) {
                 broadcast(responseLastMsg())
             }
         } else if (receivedBlocks.length === 1) {//받은 블록의 길이가 1일 때
@@ -85,7 +85,7 @@ function handleBlockResponse(message){
             broadcast(queryAllMsg())
         } else {//많이 차이가 날 때
             console.log(`블럭을 최신화를 진행합니다.`)
-            bc.replaceBlock(receivedBlocks)
+            replaceChain(receivedBlocks)
         }
 
     } else {

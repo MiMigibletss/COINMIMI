@@ -176,7 +176,7 @@ const hashMatchesBlockContent = (block) => {
 const hashMatchesDifficulty = (hash, difficulty) => {
     const hashInBinary = hexToBinary(hash);
     const requiredPrefix = '0'.repeat(difficulty);
-    return hashInBinary.startsWith(requiredPrefix);
+    return hash.startsWith(requiredPrefix);
 };
 /*
     Checks if the given blockchain is valid. Return the unspent txOuts if the chain is valid
@@ -234,7 +234,7 @@ const replaceChain = (newBlocks) => {
         blockchain = newBlocks;
         setUnspentTxOuts(aUnspentTxOuts);
         updateTransactionPool(unspentTxOuts);
-        broadcastLatest();
+        broadcast();
     }
     else {
         console.log('Received blockchain invalid');
@@ -243,4 +243,4 @@ const replaceChain = (newBlocks) => {
 const handleReceivedTransaction = (transaction) => {
     addToTransactionPool(transaction, getUnspentTxOuts());
 };
-module.exports= { Block, getBlockchain, getUnspentTxOuts, getLatestBlock, sendTransaction, generateRawNextBlock, generateNextBlock, generatenextBlockWithTransaction, handleReceivedTransaction, getMyUnspentTransactionOutputs, getAccountBalance, isValidBlockStructure, replaceChain, addBlockToChain };
+module.exports= { Block, getBlockchain, getUnspentTxOuts, getLatestBlock, sendTransaction, generateRawNextBlock, generateNextBlock, generatenextBlockWithTransaction, handleReceivedTransaction, getMyUnspentTransactionOutputs, getAccountBalance, isValidBlockStructure, replaceChain, addBlockToChain,calculateHash};

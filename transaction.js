@@ -11,16 +11,30 @@ class UnspentTxOut {
         this.amount = amount;
     }
 }
+//트랜잭션 인풋(txIn)은 코인이 어디로부터 왔는지에 대한 정보를 제공해요.
+// 각각의 txIn은 이전의 output을 참조하고 서명을 통해 unlocked되요.
+// 서명의 역할은 오직 public key과 한 쌍인 private key를 가진 사용자만이 트랜잭션을 만들수 있음을 보증하죠.
+// 인풋은 보낸(보내진)코인을 실제로 소유했었던 발송자에대한 증거에요.
+
 class TxIn {
 }
+//아웃풋은 코인을 어디로 보낼지에 대한 정보에요. 
+//트랜잭션 아웃풋(txOut)은 주소와 코인의 양으로 구성되요. 주소는 ECDSA 퍼블릭키 값이에요. 
+//이는 유저가 특정 코인에 접근하기 위해서는 해당 퍼블릭키에 대응하는 private key를 가지고 있어야 한다는 거죠.
 class TxOut {
     constructor(address, amount) {
         this.address = address;
         this.amount = amount;
     }
 }
+/**
+ * 트랜잭션 인풋txIn은 오직 private key로부터 생성된 signature값만을 가진다는 걸 주목해주세요. 절대 private key 그 자체를 가지지 않아요. 블록체인은 퍼블릭키public-key와 서명signature만을 가져요.
+
+결과적으로 txIn은 코인을 풀고unlock txOut은 코인을 잠그는relock 역할을 해요.
+ */
 class Transaction {
 }
+//트랜잭션 아이디는 트랜잭션의 컨텐트로부터 계산된 해시값이에요. txIds의 signature는 해시에 포함되지 않지만, 그건 나중에 트랜잭션에 추가될 거에요.
 const getTransactionId = (transaction) => {
     const txInContent = transaction.txIns
         .map((txIn) => txIn.txOutId + txIn.txOutIndex)
@@ -149,6 +163,21 @@ const getCoinbaseTransaction = (address, blockIndex) => {
     t.id = getTransactionId(t);
     return t;
 };
+/**서명된 이후의 트랜잭션 내용이 수정될 수 없다는 사실은 매우 중요해요. 트랜잭션이 public해졌기 때문에 누구나 그 트랜잭션에 접근할 수 있죠. 
+ * 아직 블록체인에 chaining되지 않은 사람까지도.
+
+트랜잭션 인풋에 서명할 때 오직 txId만이 서명될 거에요.
+ 만약 트랜잭션의 어느 부분이라도 변경되면 txId값도 변경되고, 이는 해당 트랜잭션과 서명을 무효화하죠.
+
+누군가가 트랜잭션에 변경을 시도하면 무슨 일이 일어나는지를 살펴보죠.
+
+한 노드의 해커가 “10코인을 AAA주소에서 BBB주소로 보내”라는 내용을 가진 트랜잭션을 0x555라는 txId값과 함께 받았어요.
+해커는 수신 주소를 BBB에서 CCC로 변경하고 이를 네트워크상에 포워딩해요. 이제 트랜잭션의 내용은 “10코인을 AAA주소에서 CCC주소로 보내”로 바뀌었어요.
+하지만 수신 주소가 변경되면 기존 txId는 더 이상 유효하지 않아요. 유효한 txId는 0x567.. 같은 게 되겠죠.
+서명signature 역시 기존 txId를 기반으로 만들어졌기 때문에 더 이상 유효하지 않게 되요.
+따라서 변조된 트랜잭션은 다른 노드들에서 받아들여질 수 없죠.
+
+*/
 const signTxIn = (transaction, txInIndex, privateKey, aUnspentTxOuts) => {
     const txIn = transaction.txIns[txInIndex];
     const dataToSign = transaction.id;
@@ -167,6 +196,11 @@ const signTxIn = (transaction, txInIndex, privateKey, aUnspentTxOuts) => {
     const signature = toHexString(key.sign(dataToSign).toDER());
     return signature;
 };
+/**트랜잭션 인풋은 항상 ‘보내지지지 않은 트랜잭션 아웃풋(Unspent transaction outputs, uTxO)’을 참조해야해요. 결국, 우리가 블록체인에서 코인을 갖는다는 것은, 보내지지지 않은 트랜잭션 아웃풋(Unspent transaction outputs, uTxO)의 목록을 가진다는 거죠. 이 아웃풋들의 퍼블릭키는 private key와 대응하구요.
+
+트랜잭션 유효성 검증이란 측면에서 uTxO는 중요해요. uTxO는 현재 최신 상태의 블록체인에서 비롯되어야 하기 때문에 우리는 이 업데이트를 구현할 거에요.
+
+uTxO의 데이터 구조는 아래와 같죠. */
 const updateUnspentTxOuts = (aTransactions, aUnspentTxOuts) => {
     const newUnspentTxOuts = aTransactions
         .map((t) => {
@@ -264,7 +298,7 @@ const isValidTransactionStructure = (transaction) => {
     }
     return true;
 };
-//유효한 주소는 04 + X 좌표 + Y 좌표 형식의 유효한 ecdsa 공개 키입니다.
+// valid address is a valid ecdsa public key in the 04 + X-coordinate + Y-coordinate format
 const isValidAddress = (address) => {
     if (address.length !== 130) {
         console.log(address);

@@ -332,3 +332,13 @@ const isValidAddress = (address) => {
     return true;
 };
 module.exports= { processTransactions, signTxIn, getTransactionId, isValidAddress, validateTransaction, UnspentTxOut, TxIn, TxOut, getCoinbaseTransaction, getPublicKey, hasDuplicates, Transaction };
+
+/**코인을 보낼 때 사용자는 트랜잭션 인풋이니 아웃풋이니 알 필요가 없다고 했죠. 그럼 이 사용자 A가 단 한번의 트랜잭션으로 그가 가진 50코인 중 단지 10코인만 B에게 보내고 싶다면 어떻게 해야 할까요? 방법은 10코인은 B에게 보내고 나머지 40코인은 그 자신에게 돌려보내(back)는 거죠. 전체 트랜잭션 아웃풋은 항상 소진(spent)되어야 하고, 만약 부분으로 나누고 싶다면 새로운 아웃풋을 생성함으로 가능해요. 그림을 보시죠.
+ * 
+ * 좀 더 복잡한 트랜잭션을 시도해 보죠.
+
+User C에겐 코인이 없었어요
+User C가 3트랜잭션으로 10, 20, 30코인을 차례로 받았어요
+User C는 55코인을 user D에게 보내길 원해요. 트랜잭션은 어떻게 이루어져야 할까요?
+이 경우 3번에 걸친 아웃풋이 모두 사용되어야 해요. 55코인은 D에게 보내고 5는 자신에게 back.
+ */

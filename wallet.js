@@ -137,6 +137,7 @@ const getBalance = (address, unspentTxOuts) => {
 const findUnspentTxOuts = (ownerAddress, unspentTxOuts) => {
     return _.filter(unspentTxOuts, (uTxO) => uTxO.address === ownerAddress);
 };
+//코드로 확인해 보죠. 먼저 트랜잭션 인풋을 만들어야 해요. 이를 위해 ‘소진되지 않은 트랜잭션 아웃(unspent transaction outputs)’ 목록을 순회하며 우리가 원하는 금액이 될 때까지 반복문을 돌리죠.
 const findTxOutsForAmount = (amount, myUnspentTxOuts) => {
     let currentAmount = 0;
     const includedUnspentTxOuts = [];
@@ -152,6 +153,7 @@ const findTxOutsForAmount = (amount, myUnspentTxOuts) => {
         ' Required amount:' + amount + '. Available unspentTxOuts:' + JSON.stringify(myUnspentTxOuts);
     throw Error(eMsg);
 };
+//다음으로 두 개의 txOuts를 만들어야 해요. 하나는 보낼 것. 다른 하나는 다시 back할 것. 만약 txIns가 보낼 금액과 같다면 leftOverAmount값은 0이므로 back을 위한 트랜잭션은 만들지 않아도 되죠.
 const createTxOuts = (receiverAddress, myAddress, amount, leftOverAmount) => {
     const txOut1 = new TxOut(receiverAddress, amount);
     if (leftOverAmount === 0) {
@@ -187,6 +189,7 @@ const createTransaction = (receiverAddress, amount, privateKey, unspentTxOuts, t
     const myUnspentTxOuts = filterTxPoolTxs(myUnspentTxOutsA, txPool);
     // filter from unspentOutputs such inputs that are referenced in pool
     const { includedUnspentTxOuts, leftOverAmount } = findTxOutsForAmount(amount, myUnspentTxOuts);
+    //코드에서 보이듯이, leftOverAmount는 나중에 자신에게 다시 back할 금액이에요. 소진되지 않은 트랜잭션 아웃풋을 가진 만큼 트랜책션 txIns를 만들어낼 수 있어요.
     const toUnsignedTxIn = (unspentTxOut) => {
         const txIn = new TxIn();
         txIn.txOutId = unspentTxOut.txOutId;
@@ -194,6 +197,9 @@ const createTransaction = (receiverAddress, amount, privateKey, unspentTxOuts, t
         return txIn;
     };
     const unsignedTxIns = includedUnspentTxOuts.map(toUnsignedTxIn);
+    //마지막으로 트랜잭션id값을 생성하고 txIns에 서명하면 끝.
+
+
     const tx = new Transaction();
     tx.txIns = unsignedTxIns;
     tx.txOuts = createTxOuts(receiverAddress, myAddress, amount, leftOverAmount);

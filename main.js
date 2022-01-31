@@ -63,6 +63,8 @@ const initHttpServer = (myHttpPort) => {
         const address = getPublicFromWallet();
         res.send({ 'address': address });
     });
+    //지갑을 사용하기 위해 기능을 넣어 보죠.
+    //위에서 보듯 사용자는 단지 주소와 코인금액만 제공하면 되요. 블럭체인의 노드가 나머지는 알아서 뿅.
     app.post('/mineTransaction', (req, res) => {
         const address = req.body.address;
         const amount = req.body.amount;

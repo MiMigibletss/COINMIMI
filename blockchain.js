@@ -109,6 +109,7 @@ const generateRawNextBlock = (blockData) => {
 const getMyUnspentTransactionOutputs = () => {
     return findUnspentTxOuts(getPublicFromWallet(), getUnspentTxOuts());
 };
+/**다음으로 우리는 트랜젝션 풀에 들어온 트랜젝션을 블럭체인 상의 블럭으로 만드는 작업을 할 거에요. 그리 어렵지 않아요. 노드가 블럭을 채굴하는 작업을 시작할 때 트랜젝션 풀로부터 트랜젝션을 받아 새로운 예비블럭에 추가해 담는 거죠. */
 const generateNextBlock = () => {
     const coinbaseTx = getCoinbaseTransaction(getPublicFromWallet(), getLatestBlock().index + 1);
     const blockData = [coinbaseTx].concat(getTransactionPool());

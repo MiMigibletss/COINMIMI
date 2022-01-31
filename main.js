@@ -77,6 +77,7 @@ const initHttpServer = (myHttpPort) => {
             res.status(400).send(e.message);
         }
     });
+    //새로운 HTTP 인터페이스가 하나 더 필요해요. POST타입의 /sendTransaction. 이를 이용해 wallet에 트랜젝션을 만들고 이 트랜젝션을 트랜젝션풀에 넣는 기능을 더할 거에요. 블럭체인에 새 트랜젝션을 포함시키고자 할 때, 이 인터페이스를 우선적으로 사용할 거에요.
     app.post('/sendTransaction', (req, res) => {
         try {
             const address = req.body.address;

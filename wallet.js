@@ -80,16 +80,27 @@
     
 // }
 
+
+
 const { ec } =require('elliptic');
 const { existsSync, readFileSync, writeFileSync } =require ('fs');
 const _ =require ('lodash');
 const { getPublicKey, getTransactionId, signTxIn, Transaction, TxIn, TxOut } =require ('./transaction');
 const EC = new ec('secp256k1');
+// private key를 암호화하지는 않은 채로 node/wallet/private_key 이 경로에 만들도록 하죠.
 const privateKeyLocation = process.env.PRIVATE_KEY || './wallet/private_key';
+/**wallet 인터페이스를 만드는 거에요. 엔드유저는
+
+private key를 가진 지갑(wallet)을 만들 수 있어야 하고
+지갑에 잔액을 볼 수 있어야 하고
+코인을 다른 노드로 보낼 수 있어야 해요.
+txIns나 txOut같은 것들이 어떻게 작동하는지 엔드유저는 알 필요가 없어요. 비트코인처럼 어떤 노드로 코인을 보내고, 또 코인을 받을 나만의 주소를 가질 수 있으면 되는 거죠. */
 const getPrivateFromWallet = () => {
     const buffer = readFileSync(privateKeyLocation, 'utf8');
     return buffer.toString();
 };
+//이미 살펴봤듯이 private key로부터 public key(=address, 주소의 역할)를 만들어 낼 거에요.
+// wallet은 오직 하나의 private key만을 가져야 하고 이로부터 pulic하게 접근가능한 address를 가진 지갑을 만들 거에요.
 const getPublicFromWallet = () => {
     const privateKey = getPrivateFromWallet();
     const key = EC.keyFromPrivate(privateKey, 'hex');
@@ -114,6 +125,10 @@ const deleteWallet = () => {
         unlinkSync(privateKeyLocation);
     }
 };
+
+/**이 아웃풋 목록은 당연히 당신만의 private key와 매칭된 public address값을 가지고 있죠.
+
+그럼 ‘잔고’계산은 참 쉽겠죠잉? 걍 ‘쓰이지 않은 트랜잭션 아웃풋(unspent transaction outputs)’을 다 더해버리면 되는 거죠. */
 const getBalance = (address, unspentTxOuts) => {
     return _(findUnspentTxOuts(address, unspentTxOuts))
         .map((uTxO) => uTxO.amount)

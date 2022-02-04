@@ -175,35 +175,23 @@ const initConnection = (ws) => {
     write(ws, queryChainLengthMsg());
 };
 
-const initMessageHandler = (ws) => {
-    ws.on('message', () => {
-        const message = JSONToObject(data);
-        if (message === null) {
-            console.log('could not parse received JSON message: ' + data);
-            return;
-        }
-        console.log('Received message' + JSON.stringify(message));
-        switch (message.type) {
-            case MessageType.QUERY_LATEST:
-                write(ws, responseLatestMsg());
-                break;
-            case MessageType.QUERY_ALL:
-                write(ws, responseChainMsg());
-                break;
-            case MessageType.RESPONSE_BLOCKCHAIN:
-                const receivedBlocks = JSONToObject(message.data);
-                if (receivedBlocks === null) {
-                    console.log('invalid blocks received:');
-                    console.log(message.data);
-                    break;
-                }
-                handleBlockchainResponse(receivedBlocks);
-                break;
-        }
+function initMessageHandler(ws) {
+    ws.on("message", (data) => {
+      const message = JSON.parse(data);
+      switch (message.type) {
+        case MessageType.QUERY_LATEST:
+          write(ws, responseLatestMsg());
+          break;
+        case MessageType.QUERY_ALL:
+          write(ws, responseAllChainMsg());
+          break;
+          ``;
+        case MessageType.RESPONSE_BLOCKCHAIN:
+          handleBolckChainResponse(message);
+          break;
+      }
     });
-};
-
-
+  }
 const write = (ws, message) => ws.send(JSON.stringify(message));
 const broadcast = (message) => sockets.forEach((socket) => write(socket, message));
 const queryChainLengthMsg = () => ({ 'type': MessageType.QUERY_LATEST, 'data': null });

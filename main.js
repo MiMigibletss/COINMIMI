@@ -6,7 +6,7 @@ const {
     Block, generateNextBlock, generatenextBlockWithTransaction, generateRawNextBlock, getAccountBalance,
     getBlockchain, getMyUnspentTransactionOutputs, getUnspentTxOuts, sendTransaction
 } =require('./blockchain') ;
-const {connectionToPeers, getSockets, wsInit,broadcast} =require('./p2p') ;
+const {connectToPeers, getSockets, initP2PServer,broadcast} =require('./p2p') ;
 const {getTransactionPool} =require('./transactionPool') ;
 const {getPublicFromWallet, initWallet} =require('./wallet') ;
 const httpPort = parseInt(process.env.HTTP_PORT) || 3001;
@@ -100,7 +100,7 @@ const initHttpServer = (myHttpPort) => {
         res.send(getSockets().map((s) => s._socket.remoteAddress + ':' + s._socket.remotePort));
     });
     app.post('/addPeer', (req, res) => {
-        connectionToPeers(req.body.peer);
+        connectToPeers(req.body.peer);
         res.send();
     });
     app.post('/stop', (req, res) => {
@@ -112,7 +112,7 @@ const initHttpServer = (myHttpPort) => {
     });
 };
 initHttpServer(httpPort);
-wsInit(p2pPort);
+initP2PServer(p2pPort);
 initWallet();
 
 

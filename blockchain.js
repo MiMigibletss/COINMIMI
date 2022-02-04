@@ -51,7 +51,7 @@ const getBlockchain = () => blockchain;
 const getUnspentTxOuts = () => _.cloneDeep(unspentTxOuts);
 // txPool은 동시에 업데이트되어야 합니다.
 const setUnspentTxOuts = (newUnspentTxOut) => {
-    console.log('replacing unspentTxouts with: %s', newUnspentTxOut);
+    console.log('unspentTxouts 대체: %s', newUnspentTxOut);
     unspentTxOuts = newUnspentTxOut;
 };
 const getLatestBlock = () => blockchain[blockchain.length - 1];
@@ -117,10 +117,10 @@ const generateNextBlock = () => {
 };
 const generatenextBlockWithTransaction = (receiverAddress, amount) => {
     if (!isValidAddress(receiverAddress)) {
-        throw Error('invalid address');
+        throw Error('잘못된 주소');
     }
     if (typeof amount !== 'number') {
-        throw Error('invalid amount');
+        throw Error('유효하지 않은 금액');
     }
     const coinbaseTx = getCoinbaseTransaction(getPublicFromWallet(), getLatestBlock().index + 1);
     const tx = createTransaction(receiverAddress, amount, getPrivateFromWallet(), getUnspentTxOuts(), getTransactionPool());
@@ -174,19 +174,19 @@ previousHash값이 이전블록의 hash값일 것.
 hash값이 유효한 값일 것. 다음의 코드로 이를 검사할 수 있어요. */
 const isValidNewBlock = (newBlock, previousBlock) => {
     if (!isValidBlockStructure(newBlock)) {
-        console.log('invalid block structure: %s', JSON.stringify(newBlock));
+        console.log('유효하지 않은 블록 구조: %s', JSON.stringify(newBlock));
         return false;
     }
     if (previousBlock.index + 1 !== newBlock.index) {
-        console.log('invalid index');
+        console.log('유효하지  않은index');
         return false;
     }
     else if (previousBlock.hash !== newBlock.previousHash) {
-        console.log('invalid previoushash');
+        console.log('유효하지  않은previoushash');
         return false;
     }
     else if (!isValidTimestamp(newBlock, previousBlock)) {
-        console.log('invalid timestamp');
+        console.log('유효하지 않은timestamp');
         return false;
     }
     else if (!hasValidHash(newBlock)) {
@@ -213,11 +213,11 @@ const isValidTimestamp = (newBlock, previousBlock) => {
 
 const hasValidHash = (block) => {
     if (!hashMatchesBlockContent(block)) {
-        console.log('invalid hash, got:' + block.hash);
+        console.log('유효하지 않은 hash, got:' + block.hash);
         return false;
     }
     if (!hashMatchesDifficulty(block.hash, block.difficulty)) {
-        console.log('block difficulty not satisfied. Expected: ' + block.difficulty + 'got: ' + block.hash);
+        console.log('블록 난이도가 만족되지 않습니다. 예상되는: ' + block.difficulty + 'got: ' + block.hash);
     }
     return true;
 };

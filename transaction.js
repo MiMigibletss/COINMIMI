@@ -50,14 +50,14 @@ const validateTransaction = (transaction, aUnspentTxOuts) => {
         return false;
     }
     if (getTransactionId(transaction) !== transaction.id) {
-        console.log('invalid tx id: ' + transaction.id);
+        console.log('잘못된 TX ID: ' + transaction.id);
         return false;
     }
     const hasValidTxIns = transaction.txIns
         .map((txIn) => validateTxIn(txIn, transaction, aUnspentTxOuts))
         .reduce((a, b) => a && b, true);
     if (!hasValidTxIns) {
-        console.log('some of the txIns are invalid in tx: ' + transaction.id);
+        console.log('txIn 중 일부는 tx에서 유효하지 않습니다.: ' + transaction.id);
         return false;
     }
 
@@ -77,7 +77,7 @@ const validateTransaction = (transaction, aUnspentTxOuts) => {
 const validateBlockTransactions = (aTransactions, aUnspentTxOuts, blockIndex) => {
     const coinbaseTx = aTransactions[0];
     if (!validateCoinbaseTx(coinbaseTx, blockIndex)) {
-        console.log('invalid coinbase transaction: ' + JSON.stringify(coinbaseTx));
+        console.log('잘못된 코인베이스 거래: ' + JSON.stringify(coinbaseTx));
         return false;
     }
     // 중복 txIn을 확인하십시오. 각 txIn은 한 번만 포함될 수 있습니다.
@@ -98,7 +98,7 @@ const hasDuplicates = (txIns) => {
     return _(groups)
         .map((value, key) => {
         if (value > 1) {
-            console.log('duplicate txIn: ' + key);
+            console.log('중복 txIn: ' + key);
             return true;
         }
         else {

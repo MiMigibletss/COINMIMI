@@ -12,12 +12,12 @@ const getTransactionPool = () => {
 };
 const addToTransactionPool = (tx, unspentTxOuts) => {
     if (!validateTransaction(tx, unspentTxOuts)) {
-        throw Error('Trying to add invalid tx to pool');
+        throw Error('풀에 잘못된 tx를 추가하려고 합니다.');
     }
     if (!isValidTxForPool(tx, transactionPool)) {
-        throw Error('Trying to add invalid tx to pool');
+        throw Error('풀에 잘못된 tx를 추가하려고 합니다.');
     }
-    console.log('adding to txPool: %s', JSON.stringify(tx));
+    console.log('txPool에 추가: %s', JSON.stringify(tx));
     transactionPool.push(tx);
 };
 const hasTxIn = (txIn, unspentTxOuts) => {
@@ -41,7 +41,7 @@ const updateTransactionPool = (unspentTxOuts) => {
         }
     }
     if (invalidTxs.length > 0) {
-        console.log('removing the following transactions from txPool: %s', JSON.stringify(invalidTxs));
+        console.log('txPool에서 다음 트랜잭션 제거: %s', JSON.stringify(invalidTxs));
         transactionPool = _.without(transactionPool, ...invalidTxs);
     }
 };
@@ -61,7 +61,7 @@ const isValidTxForPool = (tx, aTtransactionPool) => {
     };
     for (const txIn of tx.txIns) {
         if (containsTxIn(txPoolIns, txIn)) {
-            console.log('txIn already found in the txPool');
+            console.log('txPool에서 이미 txIn을 찾았습니다.');
             return false;
         }
     }

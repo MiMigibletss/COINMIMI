@@ -35,12 +35,12 @@ const initHttpServer = (myHttpPort) => {
     });
     app.post('/mineRawBlock', (req, res) => {
         if (req.body.data == null) {
-            res.send('data parameter is missing');
+            res.send('데이터 매개변수가 없습니다');
             return;
         }
         const newBlock = generateRawNextBlock(req.body.data);
         if (newBlock === null) {
-            res.status(400).send('could not generate block');
+            res.status(400).send('블록을 생성할 수 없습니다');
         }
         else {
             res.send(newBlock);
@@ -49,7 +49,7 @@ const initHttpServer = (myHttpPort) => {
     app.post('/mineBlock', (req, res) => {
         const newBlock = generateNextBlock();
         if (newBlock === null) {
-            res.status(400).send('could not generate block');
+            res.status(400).send('블록을 생성할 수 없습니다');
         }
         else {
             res.send(newBlock);
@@ -83,7 +83,7 @@ const initHttpServer = (myHttpPort) => {
             const address = req.body.address;
             const amount = req.body.amount;
             if (address === undefined || amount === undefined) {
-                throw Error('invalid address or amount');
+                throw Error('잘못된 주소 또는 금액');
             }
             const resp = sendTransaction(address, amount);
             res.send(resp);

@@ -165,7 +165,7 @@ const initP2PServer = (p2pPort) => {
     server.on('connection', (ws) => {
         initConnection(ws);
     });
-    console.log('listening websocket p2p port on: ' + p2pPort);
+    console.log('포트대기: ' + p2pPort);
 };
 const getSockets = () => sockets;
 const initConnection = (ws) => {
@@ -235,7 +235,7 @@ const handleBlockchainResponse = (receivedBlocks) => {
     }
     const latestBlockHeld = getLatestBlock();
     if (latestBlockReceived.index > latestBlockHeld.index) {
-        console.log('blockchain possibly behind. We got: '
+        console.log('블록체인이 뒤에 있을 수 있습니다. 우리는 얻었다: '
             + latestBlockHeld.index + ' Peer got: ' + latestBlockReceived.index);
         if (latestBlockHeld.hash === latestBlockReceived.previousHash) {
             if (addBlockToChain(latestBlockReceived)) {
@@ -243,16 +243,16 @@ const handleBlockchainResponse = (receivedBlocks) => {
             }
         }
         else if (receivedBlocks.length === 1) {
-            console.log('We have to query the chain from our peer');
+            console.log('피어로부터 체인을 쿼리해야 합니다.');
             broadcast(queryAllMsg());
         }
         else {
-            console.log('Received blockchain is longer than current blockchain');
+            console.log('수신된 블록체인이 현재 블록체인보다 깁니다.');
             replaceChain(receivedBlocks);
         }
     }
     else {
-        console.log('received blockchain is not longer than received blockchain. Do nothing');
+        console.log('수신된 블록체인은 수신된 블록체인보다 길지 않습니다. 아무것도하지 마세요');
     }
 };
 const broadcastLatest = () => {
@@ -264,7 +264,7 @@ const connectToPeers = (newPeer) => {
         initConnection(ws);
     });
     ws.on('error', () => {
-        console.log('connection failed');
+        console.log('연결에 실패');
     });
 };
 module.exports= { connectToPeers, broadcastLatest, initP2PServer, getSockets };

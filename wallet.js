@@ -118,7 +118,7 @@ const initWallet = () => {
     }
     const newPrivateKey = generatePrivateKey();
     writeFileSync(privateKeyLocation, newPrivateKey);
-    console.log('new wallet with private key created to : %s', privateKeyLocation);
+    console.log('생성된 개인 키가 있는 새 지갑 : %s', privateKeyLocation);
 };
 const deleteWallet = () => {
     if (existsSync(privateKeyLocation)) {
@@ -149,8 +149,8 @@ const findTxOutsForAmount = (amount, myUnspentTxOuts) => {
             return { includedUnspentTxOuts, leftOverAmount };
         }
     }
-    const eMsg = 'Cannot create transaction from the available unspent transaction outputs.' +
-        ' Required amount:' + amount + '. Available unspentTxOuts:' + JSON.stringify(myUnspentTxOuts);
+    const eMsg = '사용 가능한 미사용 트랜잭션 출력에서 ​​트랜잭션을 생성할 수 없습니다..' +
+        ' 필요금액:' + amount + '. 사용 가능한 미사용TxOut:' + JSON.stringify(myUnspentTxOuts);
     throw Error(eMsg);
 };
 //다음으로 두 개의 txOuts를 만들어야 해요. 하나는 보낼 것. 다른 하나는 다시 back할 것. 만약 txIns가 보낼 금액과 같다면 leftOverAmount값은 0이므로 back을 위한 트랜잭션은 만들지 않아도 되죠.
